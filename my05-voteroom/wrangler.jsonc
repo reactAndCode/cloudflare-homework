@@ -1,0 +1,28 @@
+/**
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "my05-voteroom",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-08-25",
+	"observability": {
+		"enabled": true
+	},
+	"upload_source_maps": true,
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "VOTE_ROOM",
+				"class_name": "VoteRoom"
+			}
+		]
+	},
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_sqlite_classes": ["VoteRoom"]
+		}
+	]
+}

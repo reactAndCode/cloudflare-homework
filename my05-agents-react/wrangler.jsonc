@@ -1,0 +1,36 @@
+/**
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "agent-foundations",
+	"main": "worker/index.ts",
+	"compatibility_date": "2026-05-14",
+	"assets": {
+		"not_found_handling": "single-page-application",
+	},
+	"observability": {
+		"enabled": true,
+	},
+	"upload_source_maps": true,
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"durable_objects": {
+		"bindings": [
+			{
+				"class_name": "ChattingRoomAgent",
+				"name": "ChattingRoomAgent",
+			},
+		],
+	},
+	"migrations": [
+		{
+			"new_sqlite_classes": [
+				"ChattingRoomAgent"
+			],
+			"tag": "v1",
+		},
+	],
+}
