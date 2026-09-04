@@ -1,0 +1,35 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "my09-browser-upgrade",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-08-25",
+  "observability": {
+    "enabled": true
+  },
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "browser": {
+    "binding": "BROWSER"
+  },
+  "ai": {
+    "binding": "AI"
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "class_name": "BrowserAgent",
+        "name": "BrowserAgent"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "BrowserAgent"
+      ]
+    }
+  ],
+  "upload_source_maps": true
+}

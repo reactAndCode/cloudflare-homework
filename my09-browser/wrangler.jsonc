@@ -1,0 +1,45 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "my09-browser",
+	"main": "worker/index.ts",
+	"compatibility_date": "2026-08-25",
+	"observability": {
+		"enabled": true
+	},
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"browser": {
+		"binding": "BROWSER"
+	},
+	"worker_loaders": [
+		{
+			"binding": "LOADER"
+		}
+	],
+	"ai": {
+		"binding": "AI"
+	},
+	"durable_objects": {
+		"bindings": [
+			{
+				"class_name": "BrowserAgent",
+				"name": "BrowserAgent"
+			},
+			{
+				"class_name": "CodemodeRuntime",
+				"name": "CodemodeRuntime"
+			}
+		]
+	},
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_sqlite_classes": [
+				"BrowserAgent",
+				"CodemodeRuntime"
+			]
+		}
+	],
+	"upload_source_maps": true
+}
