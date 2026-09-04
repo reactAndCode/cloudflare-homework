@@ -5,19 +5,19 @@ import { getToolName, isToolUIPart, type UIMessage } from "ai";
 
 const AGENT_OPTIONS = { agent: "BrowserAgent" } as const;
 
-// 추천 예시 질문 목록
+// 추천 예시 질문 목록 (webFetch & readPage 툴 선택형)
 const PRESET_QUESTIONS = [
   {
-    label: "⚡ webFetch로 저렴한 강의 검색",
-    prompt: "webFetch()로 https://nomadcoders.co 사이트와 코스 상세 페이지를 직접 fetch해서 가장 저렴한 강의 가격과 제목을 알려줘.",
+    label: "⚡ webFetch로 빠른 가격 검색",
+    prompt: "webFetch()로 https://nomadcoders.co/react-masterclass 페이지를 직접 fetch해서 마크다운 텍스트를 읽고 평생 수강권/할부 가격과 혜택을 알려줘.",
   },
   {
-    label: "🏷️ React 마스터클래스 가격 확인",
-    prompt: "webFetch()로 https://nomadcoders.co/react-masterclass 페이지를 직접 fetch해서 마크다운 텍스트를 읽고 결제 가격 및 수강 혜택을 알려줘.",
+    label: "📖 readPage로 브율 탐색 (가장 저렴한 강의)",
+    prompt: "readPage()와 followLink()를 사용해 https://nomadcoders.co 사이트에 접속 후 가장 저렴한 강의 가격과 강의명을 탐색해서 알려줘.",
   },
   {
-    label: "✍️ 사이드프로젝트 게시판 최신글",
-    prompt: "webFetch() 또는 readPage()로 https://nomadcoders.co 사이트에 접속 후 커뮤니티 게시판의 최신 글 제목과 작성자를 알려줘.",
+    label: "🌐 툴 자유 선택 (사이드프로젝트 최신글)",
+    prompt: "webFetch() 또는 readPage() 중 원하는 툴을 선택해 https://nomadcoders.co 사이트 커뮤니티의 최신 게시글 제목과 작성자를 알려줘.",
   },
 ];
 
@@ -183,16 +183,16 @@ function App() {
             </div>
             <div>
               <h1 className="text-sm font-bold text-slate-900 tracking-tight">
-                Autonomous Agent (webFetch + 3 Browser Tools)
+                Autonomous Agent (webFetch & readPage 툴 선택 가능)
               </h1>
-              <p className="text-[10px] text-slate-500">webFetch() • readPage() • followLink() • screenshot()</p>
+              <p className="text-[10px] text-slate-500">⚡ webFetch() • 📖 readPage() • 🔗 followLink() • 📸 screenshot()</p>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-1 max-w-xl gap-2">
             <input
               name="input"
-              placeholder="질문과 URL (예: webFetch로 https://nomadcoders.co/react-masterclass 가격 알려줘)"
+              placeholder="질문 입력 (예: readPage로 nomadcoders.co 에서 가장 저렴한 강의 찾아줘)"
               autoComplete="off"
               className="flex-1 rounded-full border border-slate-200 bg-slate-50 px-4 py-1.5 text-xs outline-none focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100 transition"
             />
@@ -237,7 +237,7 @@ function App() {
           {/* 퀴즈 예시 프롬프트 칩 */}
           <div className="border-b border-slate-100 bg-slate-50/60 p-2.5">
             <div className="mb-1.5 text-[11px] font-semibold text-slate-700 flex items-center gap-1">
-              <span>⚡ 추천 질문 예시 (webFetch & 자율 탐색):</span>
+              <span>⚡ 추천 질문 예시 (webFetch & readPage 선택 탐색):</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {PRESET_QUESTIONS.map((item, idx) => (
@@ -256,10 +256,10 @@ function App() {
           <div className="flex-1 overflow-y-auto p-3 space-y-3">
             {messages.length === 0 && (
               <div className="flex h-full min-h-[350px] flex-col items-center justify-center text-center text-slate-400">
-                <div className="text-3xl mb-1.5">⚡</div>
-                <p className="text-xs font-medium">webFetch() 질문을 입력하거나 위 예시 버튼을 눌러보세요.</p>
+                <div className="text-3xl mb-1.5">🌐</div>
+                <p className="text-xs font-medium">webFetch() 또는 readPage()를 선택하여 탐색을 요청해 보세요.</p>
                 <p className="text-[11px] text-slate-400 mt-1">
-                  webFetch()로 마크다운 텍스트를 고속 추출하거나, readPage / followLink로 브라우저 탐색을 수행합니다.
+                  질문 내용에 따라 AI 모델이 두 도구 중 가장 적합한 도구를 자유롭게 선택하여 자율 탐색합니다.
                 </p>
               </div>
             )}

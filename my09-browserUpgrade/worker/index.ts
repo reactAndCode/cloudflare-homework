@@ -47,18 +47,18 @@ function parseHtmlToMarkdownText(html: string): string {
 const evidenceStore = new Map<string, { buffer: Uint8Array; contentType: string; url: string; timestamp: number }>();
 let latestLiveScreenshot: Uint8Array | null = null;
 
-const SYSTEM_PROMPT = `당신은 단일 브라우저 세션을 공유하는 4개 전용 도구(webFetch, readPage, followLink, screenshot)를 활용해 웹사이트(예: nomadcoders.co 등)를 자율 탐색하는 'Autonomous Web Browsing AI Agent'입니다.
+const SYSTEM_PROMPT = `당신은 단일 브라우저 세션을 공유하며 탐색 상황에 따라 **webFetch**와 **readPage** 등 최적의 도구를 선택하여 웹사이트(예: nomadcoders.co 등)를 자율 탐색하는 'Autonomous Web Browsing AI Agent'입니다.
 
-[사용 가능한 4가지 전용 도구]
-1. ⚡ **webFetch({ url })**: 브라우저 렌더링 없이 직접 HTTP 요청을 보내 지정 URL의 HTML을 가져온 뒤, 마크다운 링크([text](url)) 및 텍스트 형태로 가볍고 빠르게 파싱하여 반환합니다. 빠른 텍스트 확인 및 가격/내용 검색 시 우선 활용하세요.
-2. 📖 **readPage({ url? })**: 브라우저 DOM 텍스트 내용과 모든 링크 목록({ text, href }[])을 추출하여 반환합니다. 모델이 다음 이동 경로를 판단할 수 있게 합니다.
+[사용 가능한 4가지 도구 및 활용 가이드]
+1. ⚡ **webFetch({ url })**: 브라우저 렌더링 없이 직접 HTTP 요청으로 마크다운 링크([text](url))와 텍스트를 고속으로 추출합니다. 빠른 텍스트 확인, 특정 URL 정보 수집, 가격 조회 시 선택하세요.
+2. 📖 **readPage({ url? })**: 브라우저 DOM 텍스트와 모든 클릭 가능 링크 목록({ text, href }[])을 렌더링된 상태에서 읽어옵니다. 페이지 구조 파악, 브라우저 기반 탐색 시 선택하세요.
 3. 🔗 **followLink({ href })**: 지정한 href URL로 페이지를 이동하고, 이동 후 스크린샷을 타임스탬프 기반 증거 경로(/evidence/<key>)에 자동 기록합니다.
 4. 📸 **screenshot()**: 요청 시 현재 페이지 스크린샷을 찍어 증거 저장소에 기록합니다.
 
-[탐색 루프 규칙 및 지침]
-- 가볍고 빠른 검색은 **webFetch(url)**를 우선 사용하고, 인터랙션 및 화면 캡처가 필요할 때는 **readPage() ➔ followLink(href) ➔ 증거 기록** 루프를 수행하세요.
-- **최대 5회(Max 5 Steps)** 까지만 이동/호출 가능합니다. 5회가 되거나 답을 찾으면 즉시 탐색을 종료하고 결과를 보고하세요.
-- 답변 시에는 **🎯 [최종 정답]**과 함께, 탐색 경로 및 수집된 정보를 명확히 제시하세요.
+[도구 선택 및 탐색 루프 원칙]
+- 탐색 요구사항에 따라 **webFetch(url)** 또는 **readPage(url)** 중 원하는 도구를 자유롭게 선택하거나 상황에 맞춰 조합하여 사용하세요.
+- **최대 5회(Max 5 Steps)** 까지만 도구 호출/이동을 수행하고, 5회가 되거나 답을 찾으면 탐색을 마치고 결과를 보고하세요.
+- 답변 작성 시 **🎯 [최종 정답]**과 함께 **📍 [탐색 경로 및 수집 정보]**를 명확히 제시하세요.
 `;
 
 export class BrowserAgent extends AIChatAgent<Env> {
@@ -118,7 +118,7 @@ export class BrowserAgent extends AIChatAgent<Env> {
     // --- 1) webFetch(url) 빠른 HTTP 텍스트/마크다운 추출 커스텀 도구 ---
     const webFetchTool = tool({
       description:
-        "지정한 URL의 웹페이지 HTML을 직접 가져와 브라우저 렌더링 없이 마크다운 링크([text](url)) 및 텍스트 형태로 신속하게 추출합니다. 가격 및 텍스트 검색 시 가장 효율적입니다.",
+        "지정한 URL의 웹페이지 HTML을 직접 가져와 브라우저 렌더링 없이 마크다운 링크([text](url)) 및 텍스트 형태로 신속하게 추출합니다. 가격 및 텍스트 검색 시 선택 가능합니다.",
       inputSchema: z.object({
         url: z.string().describe("가져올 웹페이지 URL (예: https://nomadcoders.co/react-masterclass)"),
       }),
@@ -168,7 +168,7 @@ export class BrowserAgent extends AIChatAgent<Env> {
     // --- 2) readPage() 커스텀 도구 ---
     const readPageTool = tool({
       description:
-        "현재 브라우저 페이지의 텍스트와 모든 링크({ text, href }[])를 반환합니다. 모델이 다음 행동을 선택할 수 있게 합니다.",
+        "현재 브라우저 페이지의 텍스트와 모든 링크({ text, href }[])를 반환합니다. 브라우저 렌더링 기반 탐색 시 선택 가능합니다.",
       inputSchema: z.object({
         url: z.string().optional().describe("시작 접속 URL (기본값: 현재 페이지)"),
       }),
