@@ -20,6 +20,10 @@
       {
         "class_name": "BrowserAgent",
         "name": "BrowserAgent"
+      },
+      {
+        "class_name": "CodemodeRuntime",
+        "name": "CodemodeRuntime"
       }
     ]
   },
@@ -28,6 +32,12 @@
       "tag": "v1",
       "new_sqlite_classes": [
         "BrowserAgent"
+      ]
+    },
+    {
+      "tag": "v2",
+      "new_sqlite_classes": [
+        "CodemodeRuntime"
       ]
     }
   ],

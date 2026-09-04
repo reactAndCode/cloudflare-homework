@@ -5,6 +5,8 @@ import { convertToModelMessages, isLoopFinished, streamText, tool } from "ai";
 import { createWorkersAI } from "workers-ai-provider";
 import { z } from "zod";
 
+export { CodemodeRuntime } from "@cloudflare/codemode";
+
 // Base64 문자열을 Uint8Array 바이트 배열로 변환하는 유틸리티
 function base64ToUint8Array(base64: string): Uint8Array {
   const binaryString = atob(base64);
