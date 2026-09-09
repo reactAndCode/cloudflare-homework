@@ -1,0 +1,44 @@
+/**
+ * Cloudflare Workers & Durable Objects configuration for my11-hwsubagent (Debate Arena)
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "my11-hwsubagent",
+	"main": "worker/index.ts",
+	"compatibility_date": "2026-08-25",
+	"assets": {
+		"not_found_handling": "single-page-application"
+	},
+	"observability": {
+		"enabled": true
+	},
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"ai": {
+		"binding": "AI",
+		"remote": true
+	},
+	"durable_objects": {
+		"bindings": [
+			{
+				"class_name": "DebateOrchestrator",
+				"name": "DebateOrchestrator"
+			},
+			{
+				"class_name": "DebaterAgent",
+				"name": "DebaterAgent"
+			}
+		]
+	},
+	"migrations": [
+		{
+			"new_sqlite_classes": [
+				"DebateOrchestrator",
+				"DebaterAgent"
+			],
+			"tag": "v1"
+		}
+	],
+	"upload_source_maps": true
+}
