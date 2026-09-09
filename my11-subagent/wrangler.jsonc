@@ -1,0 +1,44 @@
+/**
+ * Cloudflare Workers & Durable Objects configuration for my11-subagent
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "my11-subagent",
+	"main": "worker/index.ts",
+	"compatibility_date": "2026-08-25",
+	"assets": {
+		"not_found_handling": "single-page-application"
+	},
+	"observability": {
+		"enabled": true
+	},
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"ai": {
+		"binding": "AI",
+		"remote": true
+	},
+	"durable_objects": {
+		"bindings": [
+			{
+				"class_name": "Orchestrator",
+				"name": "Orchestrator"
+			},
+			{
+				"class_name": "Researcher",
+				"name": "Researcher"
+			}
+		]
+	},
+	"migrations": [
+		{
+			"new_sqlite_classes": [
+				"Orchestrator",
+				"Researcher"
+			],
+			"tag": "v1"
+		}
+	],
+	"upload_source_maps": true
+}
