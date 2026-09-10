@@ -1,0 +1,43 @@
+/**
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "quiz-workflow-app",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-05-18",
+  "assets": {
+    "not_found_handling": "single-page-application"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "upload_source_maps": true,
+  "compatibility_flags": ["nodejs_compat"],
+  // Cloudflare Workers AI Binding (운영 환경 배포 시 주석 해제)
+  // "ai": {
+  //   "binding": "AI"
+  // },
+  "durable_objects": {
+    "bindings": [
+      {
+        "class_name": "QuizAgent",
+        "name": "QuizAgent"
+      }
+    ]
+  },
+  "workflows": [
+    {
+      "name": "quiz-workflow",
+      "binding": "QUIZ_WORKFLOW",
+      "class_name": "QuizWorkflow"
+    }
+  ],
+  "migrations": [
+    {
+      "tag": "1",
+      "new_sqlite_classes": ["QuizAgent"]
+    }
+  ]
+}
