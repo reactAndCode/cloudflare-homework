@@ -162,3 +162,26 @@ export type QuizState = {
 - **해결 방안**:
   1. `PlayerView.tsx` 상단 프로필 헤더 영역에 **"👤 신규 참가자 추가 / 변경"** 버튼을 배치.
   2. 클릭 시 `localStorage`의 기존 세션(`quiz_player_id`, `quiz_player_name`)을 초기화하고 `handleSwitchPlayer`를 실행하여 닉네임 입력 참여 화면으로 자연스럽게 전환.
+
+---
+
+### 🐛 트러블슈팅 12: Workflows `Workflow instance has invalid id` 해결
+- **문제 현상**: 진행자 화면에서 퀴즈 시작 버튼(`startQuiz`) 클릭 시 `WorkflowError: Workflow instance has invalid id at WorkflowBinding.create` 발생.
+- **원인 분석**:
+  - `agents` SDK의 `runWorkflow` 기본 동작은 인스턴스 ID가 전달되지 않을 경우 `nanoid()`를 사용합니다.
+  - Miniflare 및 Cloudflare Workflows의 인스턴스 ID 검증 정규식은 `^[a-zA-Z0-9_][a-zA-Z0-9-_]*$`(최대 100자)이며 하이픈(`-`)으로 시작할 수 없습니다.
+  - `nanoid()`는 `A-Za-z0-9_-` 문자셋을 사용하므로 첫 문자가 `-`가 되거나 특수문자 배치에 따라 검증에 실패할 수 있습니다.
+- **해결 방안**:
+  - [worker/index.ts](file:///d:/dev/cloudflare/cloudflare-homework/my12-hw2workflow/worker/index.ts)의 `startQuiz`에서 `this.runWorkflow("QUIZ_WORKFLOW", {}, { id: workflowInstanceId })` 옵션을 명시적으로 전달.
+  - `workflowInstanceId`는 `quiz_${Date.now()}_${crypto.randomUUID().replace(/-/g, "").substring(0, 8)}` 패턴을 적용하여 영문 소문자(`q`)로 안전하게 시작하고 100자 이내의 고유 규격 ID를 보장.
+
+---
+
+### 🐛 트러블슈팅 13: 워크플로우 상태 오버라이트 방지 (`mergeAgentState`) 및 실시간 동기화 보강
+- **문제 현상**: 참가자 화면이 `idle` 대기 상태("진행자가 퀴즈를 시작하기를 기다리는 중입니다...")에서 라운드 문제 화면으로 전환되지 않음.
+- **원인 분석**:
+  - `QuizWorkflow.run`에서 `step.updateAgentState`를 호출하면 내부적으로 `_workflow_updateState("set", state)`가 실행되어 기존의 `players`, `leaderboard` 등 전체 상태 필드가 누락되고 오버라이트됨.
+  - 또한 이후 단계에서 `status` 필드를 명시하지 않아 상태가 유실되는 문제 발생.
+- **해결 방안**:
+  1. [worker/index.ts](file:///d:/dev/cloudflare/cloudflare-homework/my12-hw2workflow/worker/index.ts) 내 `QuizWorkflow`의 모든 `step.updateAgentState`를 `step.mergeAgentState`로 교체하여 기존 참가자 목록 및 상태를 완벽히 보존.
+  2. [PlayerView.tsx](file:///d:/dev/cloudflare/cloudflare-homework/my12-hw2workflow/src/PlayerView.tsx) 및 [HostView.tsx](file:///d:/dev/cloudflare/cloudflare-homework/my12-hw2workflow/src/HostView.tsx)에 `agent.state` 실시간 갱신 리액티브 `useEffect` 훅을 보강.

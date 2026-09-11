@@ -7,6 +7,12 @@ export type RoundStage =
   | "awaiting_approval"
   | "finished";
 
+declare global {
+  interface Env {
+    AI?: any;
+  }
+}
+
 export type QuestionItem = {
   round: number;
   topic: string;

@@ -1,0 +1,40 @@
+/**
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "think-framework",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-05-18",
+  "assets": {
+    "not_found_handling": "single-page-application",
+  },
+  "observability": {
+    "enabled": true,
+  },
+  "upload_source_maps": true,
+  "compatibility_flags": ["nodejs_compat"],
+  "ai": {
+    "binding": "AI",
+    "remote": true,
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "class_name": "ThinkAgent",
+        "name": "ThinkAgent",
+      },
+    ],
+  },
+  "migrations": [
+    {
+      "tag": "1",
+      "new_sqlite_classes": ["ThinkAgent"],
+    },
+  ],
+  "r2_buckets": [
+    { "binding": "SKILLS", "bucket_name": "nomadclaw-skills", "remote": true },
+  ],
+  "worker_loaders": [{ "binding": "LOADER" }],
+}

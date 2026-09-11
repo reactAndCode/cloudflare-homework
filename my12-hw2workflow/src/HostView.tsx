@@ -80,6 +80,13 @@ export function HostView() {
     }
   }, [agent]);
 
+  // agent.state 실시간 갱신 반응성 보강
+  useEffect(() => {
+    if (agent && agent.state) {
+      setState((prev) => ({ ...prev, ...agent.state }));
+    }
+  }, [agent?.state]);
+
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [actionError, setActionError] = useState<string | null>(null);
 

@@ -225,7 +225,7 @@ Output strictly in valid raw JSON format without markdown code blocks:
 export class QuizWorkflow extends AgentWorkflow<QuizAgent, Params> {
   async run(_event: AgentWorkflowEvent<Params>, step: AgentWorkflowStep) {
     // 퀴즈 시작 상태 초기화
-    await step.updateAgentState({
+    await step.mergeAgentState({
       status: "in_progress",
       currentRound: 1,
       roundStage: "question",
@@ -256,7 +256,8 @@ export class QuizWorkflow extends AgentWorkflow<QuizAgent, Params> {
       const answeringEndsAt = Date.now() + 60 * 1000;
       const currentQuestions = (await this.agent.getQuestions()) || {};
 
-      await step.updateAgentState({
+      await step.mergeAgentState({
+        status: "in_progress",
         currentRound: round,
         roundStage: "answering",
         currentQuestion: questionItem,
@@ -279,7 +280,8 @@ export class QuizWorkflow extends AgentWorkflow<QuizAgent, Params> {
       }
 
       // 답변 창 닫기
-      await step.updateAgentState({
+      await step.mergeAgentState({
+        status: "in_progress",
         isAnsweringOpen: false,
         answeringEndsAt: null,
         roundStage: "grading",
@@ -310,7 +312,8 @@ export class QuizWorkflow extends AgentWorkflow<QuizAgent, Params> {
         roundGrades
       );
 
-      await step.updateAgentState({
+      await step.mergeAgentState({
+        status: "in_progress",
         roundStage: "leaderboard",
       });
 
@@ -321,7 +324,7 @@ export class QuizWorkflow extends AgentWorkflow<QuizAgent, Params> {
     }
 
     // 4. 5라운드 완료 후 진행자 최종 승인 대기 (waitForApproval)
-    await step.updateAgentState({
+    await step.mergeAgentState({
       status: "awaiting_approval",
       roundStage: "awaiting_approval",
     });
@@ -331,13 +334,13 @@ export class QuizWorkflow extends AgentWorkflow<QuizAgent, Params> {
         timeout: "24 hours",
       });
 
-      await step.updateAgentState({
+      await step.mergeAgentState({
         status: "completed",
         roundStage: "finished",
         finalApproved: true,
       });
     } catch {
-      await step.updateAgentState({
+      await step.mergeAgentState({
         status: "completed",
         roundStage: "finished",
         finalApproved: false,
@@ -433,7 +436,15 @@ export class QuizAgent extends Agent<Env, QuizState> {
 
   @callable()
   async startQuiz() {
-    const workflowId = await this.runWorkflow("QUIZ_WORKFLOW", {});
+    const workflowInstanceId = `quiz_${Date.now()}_${crypto
+      .randomUUID()
+      .replace(/-/g, "")
+      .substring(0, 8)}`;
+    const workflowId = await this.runWorkflow(
+      "QUIZ_WORKFLOW",
+      {},
+      { id: workflowInstanceId }
+    );
     this.setState({
       ...this.state,
       workflowId,
